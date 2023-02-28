@@ -84,6 +84,8 @@ def _on_disconnect(client, userdata, response_code):
     mqtt_params = params.pop("mqtt", {})
     conn_params = mqtt_params.pop("connection")
 
+    rospy.set_param("mqttbridge/is_connected", False)
+
     while not rospy.get_param("mqttbridge/is_connected") and not rospy.is_shutdown():
         rospy.loginfo(f"Trying to reconnect to broker with params {conn_params}")
         try:
