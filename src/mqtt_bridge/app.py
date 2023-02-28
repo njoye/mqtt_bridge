@@ -33,6 +33,10 @@ def mqtt_bridge_node():
     mqtt_private_path = mqtt_params.pop("private_path", "")
     bridge_params = params.get("bridge", [])
 
+    # set state param
+    rospy.set_param('mqttbridge/is_connected', False)    
+
+
     # create mqtt client
     mqtt_client_factory_name = rospy.get_param(
         "~mqtt_client_factory", ".mqtt_client:default_mqtt_client_factory")
@@ -69,27 +73,26 @@ def mqtt_bridge_node():
 
 
 def _on_connect(client, userdata, flags, response_code):
-    global is_connected
     rospy.loginfo('MQTT connected')
-    is_connected = True
+    rospy.set_param()
 
 
 def _on_disconnect(client, userdata, response_code):
-    global is_connected
     rospy.loginfo('MQTT disconnected')
-    is_connected = False
 
     params = rospy.get_param("~", {})
     mqtt_params = params.pop("mqtt", {})
     conn_params = mqtt_params.pop("connection")
 
-    while not is_connected:
+    while not rospy.get_param("mqttbridge/is_connected"):
         rospy.loginfo(f"Trying to reconnect to broker with params {conn_params}")
         try:
             rospy.sleep(rospy.Duration(1))
             client.connect(**conn_params)
+            rospy.set_param('mqttbridge/is_connected', True)
         except:    
             rospy.logerr("Couldn't connect to the broker")
+            rospy.set_param('mqttbridge/is_connected', False)
 
 
 __all__ = ['mqtt_bridge_node']
