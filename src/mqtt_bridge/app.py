@@ -85,8 +85,11 @@ def _on_disconnect(client, userdata, response_code):
 
     while not is_connected:
         rospy.loginfo(f"Trying to reconnect to broker with params {conn_params}")
-        client.connect(**conn_params)
-        rospy.sleep(rospy.Duration(1))
+        try:
+            rospy.sleep(rospy.Duration(1))
+            client.connect(**conn_params)
+        except:    
+            rospy.loggerr("There was an exception connecting to the broker")
 
 
 __all__ = ['mqtt_bridge_node']
