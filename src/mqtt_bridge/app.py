@@ -74,7 +74,7 @@ def mqtt_bridge_node():
 
 def _on_connect(client, userdata, flags, response_code):
     rospy.loginfo('MQTT connected')
-    rospy.set_param(("mqttbridge/is_connected", True)
+    rospy.set_param("mqttbridge/is_connected", True)
 
 
 def _on_disconnect(client, userdata, response_code):
