@@ -76,12 +76,16 @@ def _on_connect(client, userdata, flags, response_code):
 
 def _on_disconnect(client, userdata, response_code):
     global is_connected
-    rospy.loginfo('MQTT disconnected - trying to reconnect')
+    rospy.loginfo('MQTT disconnected')
     is_connected = False
 
+    params = rospy.get_param("~", {})
+    mqtt_params = params.pop("mqtt", {})
+    conn_params = mqtt_params.pop("connection")
+
     while not is_connected:
-        rospy.loginfo("Trying to reconnect to broker")
-        client.connect()
+        rospy.loginfo(f"Trying to reconnect to broker with params {conn_params}")
+        client.connect(**conn_params)
         rospy.sleep(rospy.Duration(1))
 
 
