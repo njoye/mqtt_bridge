@@ -6,6 +6,7 @@ from .bridge import create_bridge
 from .mqtt_client import create_private_path_extractor
 from .util import lookup_object
 
+is_connected = False
 
 def create_config(mqtt_client, serializer, deserializer, mqtt_private_path):
     if isinstance(serializer, str):
@@ -63,15 +64,25 @@ def mqtt_bridge_node():
     # register shutdown callback and spin
     rospy.on_shutdown(mqtt_client.disconnect)
     rospy.on_shutdown(mqtt_client.loop_stop)
+
     rospy.spin()
 
 
 def _on_connect(client, userdata, flags, response_code):
+    global is_connected
     rospy.loginfo('MQTT connected')
+    is_connected = True
 
 
 def _on_disconnect(client, userdata, response_code):
-    rospy.loginfo('MQTT disconnected')
+    global is_connected
+    rospy.loginfo('MQTT disconnected - trying to reconnect')
+    is_connected = False
+
+    while not is_connected:
+        rospy.loginfo("Trying to reconnect to broker")
+        client.connect()
+        rospy.sleep(rospy.Duration(1))
 
 
 __all__ = ['mqtt_bridge_node']
