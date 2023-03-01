@@ -55,7 +55,15 @@ def mqtt_bridge_node():
     # configure and connect to MQTT broker
     mqtt_client.on_connect = _on_connect
     mqtt_client.on_disconnect = _on_disconnect
-    mqtt_client.connect(**conn_params)
+    
+    is_connected = False
+    while not is_connected:
+        try:
+            mqtt_client.connect(**conn_params)
+            is_connected = True
+        except:
+            rospy.logerr("Couldn't connect to broker during start sequence, trying again.")
+            rospy.sleep(rospy.Duration(1))
 
     # configure bridges
     bridges = []
